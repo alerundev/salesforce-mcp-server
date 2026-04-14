@@ -9,8 +9,10 @@ import { get_leads } from './get_leads.js';
 import { get_leads_by_status } from './get_leads_by_status.js';
 import { get_recent_activities } from './get_recent_activities.js';
 import { run_soql } from './run_soql.js';
+import { get_schema } from './get_schema.js';
 
 export const tools = [
+  get_schema,
   get_accounts,
   search_accounts,
   get_opportunities,
