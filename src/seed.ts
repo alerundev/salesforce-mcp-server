@@ -2,16 +2,75 @@
  * Salesforce 샘플 데이터 시딩 스크립트
  * 실행: npm run seed
  */
-import { getConnection } from './salesforce.js';
-// seed uses getConnection which internally uses default import of jsforce
+import https from 'https';
+
+interface TokenResponse {
+  access_token: string;
+  instance_url: string;
+  error?: string;
+  error_description?: string;
+}
+
+async function getToken(): Promise<{ token: string; base: string }> {
+  const params = new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: process.env['SF_CONSUMER_KEY']!,
+    client_secret: process.env['SF_CONSUMER_SECRET']!,
+  });
+
+  const body = params.toString();
+  const data: TokenResponse = await new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'login.salesforce.com',
+      path: '/services/oauth2/token',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) },
+    }, (res) => {
+      let raw = '';
+      res.on('data', chunk => raw += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(raw)); } catch (e) { reject(e); } });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+
+  if (!data.access_token) throw new Error(data.error_description || JSON.stringify(data));
+  return { token: data.access_token, base: data.instance_url };
+}
+
+async function create(token: string, base: string, sobject: string, records: Record<string, unknown>[]): Promise<string[]> {
+  const ids: string[] = [];
+  for (const record of records) {
+    const body = JSON.stringify(record);
+    const result = await new Promise<{ id: string }>((resolve, reject) => {
+      const req = https.request({
+        hostname: new URL(base).hostname,
+        path: `/services/data/v59.0/sobjects/${sobject}`,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      }, (res) => {
+        let raw = '';
+        res.on('data', chunk => raw += chunk);
+        res.on('end', () => { try { resolve(JSON.parse(raw)); } catch (e) { reject(e); } });
+      });
+      req.on('error', reject);
+      req.write(body);
+      req.end();
+    });
+    ids.push(result.id);
+  }
+  return ids;
+}
 
 async function seed() {
-  const conn = await getConnection();
   console.log('🌱 샘플 데이터 시딩 시작...\n');
+  const { token, base } = await getToken();
+  console.log('✅ Salesforce 연결 성공:', base);
 
   // ── 1. Accounts ──────────────────────────────────────────────────────────
   console.log('📦 거래처(Account) 생성 중...');
-  const accounts = await conn.sobject('Account').create([
+  const accountIds = await create(token, base, 'Account', [
     { Name: '삼성전자', Industry: 'Electronics', AnnualRevenue: 200000000, BillingCity: '수원', BillingCountry: '대한민국', NumberOfEmployees: 50000, Phone: '031-200-1234' },
     { Name: 'LG화학', Industry: 'Chemicals', AnnualRevenue: 150000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 30000, Phone: '02-3777-1114' },
     { Name: '현대자동차', Industry: 'Automotive', AnnualRevenue: 300000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 70000, Phone: '02-3464-1114' },
@@ -20,12 +79,11 @@ async function seed() {
     { Name: '네이버', Industry: 'Technology', AnnualRevenue: 100000000, BillingCity: '성남', BillingCountry: '대한민국', NumberOfEmployees: 15000, Phone: '1588-3820' },
     { Name: '쿠팡', Industry: 'Retail', AnnualRevenue: 90000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 25000, Phone: '1577-7011' },
   ]);
-  const accountIds = accounts.map((a) => a.id);
   console.log(`  ✅ ${accountIds.length}개 거래처 생성 완료`);
 
   // ── 2. Contacts ──────────────────────────────────────────────────────────
   console.log('👤 담당자(Contact) 생성 중...');
-  await conn.sobject('Contact').create([
+  await create(token, base, 'Contact', [
     { FirstName: '지수', LastName: '김', Email: 'jisoo.kim@samsung.com', Phone: '031-200-1001', Title: 'IT 구매팀장', AccountId: accountIds[0] },
     { FirstName: '민준', LastName: '이', Email: 'minjun.lee@samsung.com', Phone: '031-200-1002', Title: 'CTO', AccountId: accountIds[0] },
     { FirstName: '서연', LastName: '박', Email: 'seoyeon.park@lgchem.com', Phone: '02-3777-2001', Title: '구매 담당자', AccountId: accountIds[1] },
@@ -38,7 +96,7 @@ async function seed() {
 
   // ── 3. Opportunities ─────────────────────────────────────────────────────
   console.log('💰 영업 기회(Opportunity) 생성 중...');
-  await conn.sobject('Opportunity').create([
+  await create(token, base, 'Opportunity', [
     { Name: '삼성전자 AI플랫폼 도입', StageName: 'Proposal/Price Quote', Amount: 50000000, CloseDate: '2026-05-31', AccountId: accountIds[0], Probability: 60 },
     { Name: '삼성전자 파일럿 확장', StageName: 'Negotiation/Review', Amount: 30000000, CloseDate: '2026-04-30', AccountId: accountIds[0], Probability: 80 },
     { Name: 'LG화학 챗봇 솔루션', StageName: 'Closed Won', Amount: 25000000, CloseDate: '2026-03-15', AccountId: accountIds[1], Probability: 100 },
@@ -53,7 +111,7 @@ async function seed() {
 
   // ── 4. Leads ─────────────────────────────────────────────────────────────
   console.log('🎯 잠재 고객(Lead) 생성 중...');
-  await conn.sobject('Lead').create([
+  await create(token, base, 'Lead', [
     { FirstName: '수지', LastName: '한', Company: '롯데정보통신', Email: 'suji.han@lotte.com', Status: 'Open', LeadSource: 'Web', Rating: 'Hot', Phone: '02-1234-5678' },
     { FirstName: '도현', LastName: '임', Company: '포스코ICT', Email: 'dohyun.lim@poscoict.com', Status: 'Working', LeadSource: 'Conference', Rating: 'Warm', Phone: '02-2345-6789' },
     { FirstName: '하은', LastName: '오', Company: 'GS리테일', Email: 'haeun.oh@gsretail.com', Status: 'Open', LeadSource: 'Partner Referral', Rating: 'Hot', Phone: '02-3456-7890' },
@@ -65,7 +123,7 @@ async function seed() {
 
   // ── 5. Tasks ─────────────────────────────────────────────────────────────
   console.log('📋 활동(Task) 생성 중...');
-  await conn.sobject('Task').create([
+  await create(token, base, 'Task', [
     { Subject: '삼성전자 제안서 발송', Status: 'Completed', Priority: 'High', ActivityDate: '2026-04-10' },
     { Subject: '현대자동차 미팅 준비', Status: 'Not Started', Priority: 'High', ActivityDate: '2026-04-20' },
     { Subject: 'SK텔레콤 전화 상담', Status: 'In Progress', Priority: 'Normal', ActivityDate: '2026-04-15' },
