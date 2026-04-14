@@ -9,8 +9,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "postinstall": "npm run build",
-    "build": "tsc",
+    "build": "node_modules/.bin/tsc",
     "start": "node dist/mcp-server.js",
     "dev": "tsx watch src/mcp-server.ts",
     "seed": "tsx src/seed.ts",
