@@ -3,6 +3,7 @@
  * 실행: npm run seed
  */
 import { getConnection } from './salesforce.js';
+// seed uses getConnection which internally uses default import of jsforce
 
 async function seed() {
   const conn = await getConnection();

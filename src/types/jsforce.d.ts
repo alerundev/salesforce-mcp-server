@@ -5,6 +5,10 @@ declare module 'jsforce' {
     records: T[];
   }
 
+  export interface SObject {
+    create(records: Record<string, unknown>[]): Promise<{ id: string; success: boolean }[]>;
+  }
+
   export class Connection {
     constructor(options: { loginUrl?: string });
     login(username: string, password: string): Promise<{ id: string; organizationId: string }>;
@@ -12,7 +16,6 @@ declare module 'jsforce' {
     sobject(name: string): SObject;
   }
 
-  export interface SObject {
-    create(records: Record<string, unknown> | Record<string, unknown>[]): Promise<{ id: string; success: boolean }[]>;
-  }
+  const pkg: { Connection: typeof Connection };
+  export default pkg;
 }

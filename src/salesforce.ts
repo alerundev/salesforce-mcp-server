@@ -1,8 +1,11 @@
-import { Connection } from 'jsforce';
+import pkg from 'jsforce';
+const { Connection } = pkg;
 
-let conn: Connection | null = null;
+type JsforceConnection = InstanceType<typeof Connection>;
 
-export async function getConnection(): Promise<Connection> {
+let conn: JsforceConnection | null = null;
+
+export async function getConnection(): Promise<JsforceConnection> {
   if (conn) return conn;
 
   conn = new Connection({
@@ -21,5 +24,5 @@ export async function getConnection(): Promise<Connection> {
 export async function query(soql: string): Promise<Record<string, unknown>[]> {
   const c = await getConnection();
   const result = await c.query(soql);
-  return result.records;
+  return result.records as Record<string, unknown>[];
 }
