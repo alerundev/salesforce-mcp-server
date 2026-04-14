@@ -11,6 +11,7 @@ export async function getConnection(): Promise<JsforceConnection> {
   // SOAP API 방식 (Username-Password Flow 불필요)
   conn = new Connection({
     loginUrl: process.env['SF_LOGIN_URL'] || 'https://login.salesforce.com',
+    version: '59.0',
   });
 
   await conn.login(

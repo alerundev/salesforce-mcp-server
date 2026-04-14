@@ -17,6 +17,7 @@ declare module 'jsforce' {
 
   export interface ConnectionOptions {
     loginUrl?: string;
+    version?: string;
     oauth2?: OAuth2Options;
   }
 
