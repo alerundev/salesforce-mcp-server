@@ -9,8 +9,19 @@ declare module 'jsforce' {
     create(records: Record<string, unknown>[]): Promise<{ id: string; success: boolean }[]>;
   }
 
+  export interface OAuth2Options {
+    loginUrl?: string;
+    clientId?: string;
+    clientSecret?: string;
+  }
+
+  export interface ConnectionOptions {
+    loginUrl?: string;
+    oauth2?: OAuth2Options;
+  }
+
   export class Connection {
-    constructor(options: { loginUrl?: string });
+    constructor(options: ConnectionOptions);
     login(username: string, password: string): Promise<{ id: string; organizationId: string }>;
     query<T = Record<string, unknown>>(soql: string): Promise<QueryResult<T>>;
     sobject(name: string): SObject;
