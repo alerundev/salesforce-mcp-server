@@ -8,17 +8,23 @@ let conn: JsforceConnection | null = null;
 export async function getConnection(): Promise<JsforceConnection> {
   if (conn) return conn;
 
-  // SOAP API 방식 (Username-Password Flow 불필요)
+  const loginUrl = process.env['SF_LOGIN_URL'] || 'https://login.salesforce.com';
+  const consumerKey = process.env['SF_CONSUMER_KEY']!;
+  const consumerSecret = process.env['SF_CONSUMER_SECRET']!;
+  const username = process.env['SF_USERNAME']!;
+  const password = process.env['SF_PASSWORD']!;
+  const securityToken = process.env['SF_SECURITY_TOKEN'] || '';
+
   conn = new Connection({
-    loginUrl: process.env['SF_LOGIN_URL'] || 'https://login.salesforce.com',
+    oauth2: {
+      loginUrl,
+      clientId: consumerKey,
+      clientSecret: consumerSecret,
+    },
     version: '59.0',
   });
 
-  await conn.login(
-    process.env['SF_USERNAME']!,
-    process.env['SF_PASSWORD']! + process.env['SF_SECURITY_TOKEN']!
-  );
-
+  await conn.login(username, password + securityToken);
   console.log('[Salesforce] Connected successfully');
   return conn;
 }
