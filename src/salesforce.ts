@@ -39,13 +39,19 @@ async function getToken(): Promise<{ token: string; base: string }> {
 
   accessToken = data['access_token'] as string;
   instanceUrl = data['instance_url'] as string;
-  console.log('[Salesforce] Connected via Client Credentials:', instanceUrl);
+  console.log('[Salesforce] Connected:', instanceUrl);
   return { token: accessToken, base: instanceUrl };
 }
 
-export async function query(soql: string): Promise<Record<string, unknown>[]> {
+export async function query(soql: string): Promise<Record<string, unknown>[] | number> {
   const { token, base } = await getToken();
-  const path = `/services/data/v59.0/query?q=${encodeURIComponent(soql)}`;
+
+  // LIMIT이 없는 SELECT 쿼리에 자동으로 LIMIT 100 추가 (COUNT 제외)
+  const isCount = /SELECT\s+COUNT\s*\(\s*\)/i.test(soql);
+  const hasLimit = /LIMIT\s+\d+/i.test(soql);
+  const finalSoql = (!isCount && !hasLimit) ? `${soql} LIMIT 100` : soql;
+
+  const path = `/services/data/v59.0/query?q=${encodeURIComponent(finalSoql)}`;
   const hostname = new URL(base).hostname;
 
   const data = await new Promise<Record<string, unknown>>((resolve, reject) => {
@@ -64,10 +70,14 @@ export async function query(soql: string): Promise<Record<string, unknown>[]> {
   });
 
   if (data['errorCode']) {
-    // 토큰 만료 시 재시도
     accessToken = null;
     instanceUrl = null;
     throw new Error(`${data['errorCode']}: ${data['message']}`);
+  }
+
+  // COUNT() 쿼리는 totalSize 반환
+  if (isCount) {
+    return data['totalSize'] as number;
   }
 
   return (data['records'] as Record<string, unknown>[]) || [];
