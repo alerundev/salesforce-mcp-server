@@ -3,14 +3,12 @@
  * 실행: npm run seed
  */
 import { getConnection } from './salesforce.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
 async function seed() {
   const conn = await getConnection();
   console.log('🌱 샘플 데이터 시딩 시작...\n');
 
-  // ── 1. Accounts ─────────────────────────────────────────────────────────────
+  // ── 1. Accounts ──────────────────────────────────────────────────────────
   console.log('📦 거래처(Account) 생성 중...');
   const accounts = await (conn as any).sobject('Account').create([
     { Name: '삼성전자', Industry: 'Electronics', AnnualRevenue: 200000000, BillingCity: '수원', BillingCountry: '대한민국', NumberOfEmployees: 50000, Phone: '031-200-1234' },
@@ -21,10 +19,10 @@ async function seed() {
     { Name: '네이버', Industry: 'Technology', AnnualRevenue: 100000000, BillingCity: '성남', BillingCountry: '대한민국', NumberOfEmployees: 15000, Phone: '1588-3820' },
     { Name: '쿠팡', Industry: 'Retail', AnnualRevenue: 90000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 25000, Phone: '1577-7011' },
   ]);
-  const accountIds = accounts.map((a: any) => a.id);
+  const accountIds = (accounts as any[]).map((a: any) => a.id);
   console.log(`  ✅ ${accountIds.length}개 거래처 생성 완료`);
 
-  // ── 2. Contacts ─────────────────────────────────────────────────────────────
+  // ── 2. Contacts ──────────────────────────────────────────────────────────
   console.log('👤 담당자(Contact) 생성 중...');
   await (conn as any).sobject('Contact').create([
     { FirstName: '지수', LastName: '김', Email: 'jisoo.kim@samsung.com', Phone: '031-200-1001', Title: 'IT 구매팀장', AccountId: accountIds[0] },
@@ -37,7 +35,7 @@ async function seed() {
   ]);
   console.log('  ✅ 담당자 생성 완료');
 
-  // ── 3. Opportunities ────────────────────────────────────────────────────────
+  // ── 3. Opportunities ─────────────────────────────────────────────────────
   console.log('💰 영업 기회(Opportunity) 생성 중...');
   await (conn as any).sobject('Opportunity').create([
     { Name: '삼성전자 AI플랫폼 도입', StageName: 'Proposal/Price Quote', Amount: 50000000, CloseDate: '2026-05-31', AccountId: accountIds[0], Probability: 60 },
@@ -52,7 +50,7 @@ async function seed() {
   ]);
   console.log('  ✅ 영업 기회 생성 완료');
 
-  // ── 4. Leads ────────────────────────────────────────────────────────────────
+  // ── 4. Leads ─────────────────────────────────────────────────────────────
   console.log('🎯 잠재 고객(Lead) 생성 중...');
   await (conn as any).sobject('Lead').create([
     { FirstName: '수지', LastName: '한', Company: '롯데정보통신', Email: 'suji.han@lotte.com', Status: 'Open', LeadSource: 'Web', Rating: 'Hot', Phone: '02-1234-5678' },
@@ -64,7 +62,7 @@ async function seed() {
   ]);
   console.log('  ✅ 잠재 고객 생성 완료');
 
-  // ── 5. Tasks ────────────────────────────────────────────────────────────────
+  // ── 5. Tasks ─────────────────────────────────────────────────────────────
   console.log('📋 활동(Task) 생성 중...');
   await (conn as any).sobject('Task').create([
     { Subject: '삼성전자 제안서 발송', Status: 'Completed', Priority: 'High', ActivityDate: '2026-04-10' },
@@ -76,10 +74,9 @@ async function seed() {
   console.log('  ✅ 활동 생성 완료');
 
   console.log('\n🎉 샘플 데이터 시딩 완료!');
-  console.log('이제 MCP 서버를 실행하고 자연어로 데이터를 조회할 수 있습니다.');
 }
 
 seed().catch((err) => {
-  console.error('❌ 시딩 실패:', err.message);
+  console.error('❌ 시딩 실패:', (err as Error).message);
   process.exit(1);
 });
