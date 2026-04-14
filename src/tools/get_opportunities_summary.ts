@@ -22,8 +22,8 @@ export const get_opportunities_summary = {
           ? `WHERE Name LIKE '%${product}%' AND CloseDate >= ${year}-01-01 AND CloseDate <= ${year}-12-31`
           : `WHERE Name LIKE '%${product}%'`;
         const count = await query(`SELECT COUNT() FROM Opportunity ${whereClause}`);
-        const amountResult = await query(`SELECT SUM(Amount) totalAmount FROM Opportunity ${whereClause}`);
-        const total = Array.isArray(amountResult) ? (amountResult[0] as any)?.totalAmount : 0;
+        const amountResult = await query(`SELECT SUM(Amount) totalAmt FROM Opportunity ${whereClause}`);
+        const total = Array.isArray(amountResult) ? (amountResult[0] as any)?.totalAmt : 0;
         if (typeof count === 'number' && count > 0) {
           results.push({ product, count, totalAmount: total || 0 });
         }
@@ -32,7 +32,7 @@ export const get_opportunities_summary = {
     } else if (group_by === 'year') {
       records = await query(`SELECT CALENDAR_YEAR(CloseDate) yr, COUNT(Id) cnt, SUM(Amount) totalAmount FROM Opportunity GROUP BY CALENDAR_YEAR(CloseDate) ORDER BY CALENDAR_YEAR(CloseDate)`);
     } else if (group_by === 'country') {
-      records = await query(`SELECT Account.BillingCountry, COUNT(Id) cnt, SUM(Amount) totalAmount FROM Opportunity ${yearFilter} GROUP BY Account.BillingCountry ORDER BY COUNT(Id) DESC LIMIT 20`);
+      records = await query(`SELECT Account.BillingCountry country, COUNT(Id) cnt, SUM(Amount) totalAmount FROM Opportunity ${yearFilter} GROUP BY Account.BillingCountry ORDER BY COUNT(Id) DESC LIMIT 20`);
     } else {
       records = await query(`SELECT StageName, COUNT(Id) cnt, SUM(Amount) totalAmount FROM Opportunity ${yearFilter} GROUP BY StageName`);
     }
