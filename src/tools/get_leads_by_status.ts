@@ -10,8 +10,7 @@ export const get_leads_by_status = {
   },
   handle: async ({ status }: { status: string }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, FirstName, LastName, Company, Email, Status, LeadSource, Rating
-       FROM Lead WHERE Status = '${status}' LIMIT 20`
+      `SELECT Id, FirstName, LastName, Company, Email, Status, LeadSource, Rating FROM Lead WHERE Status = '${status}' LIMIT 20`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

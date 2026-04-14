@@ -10,8 +10,7 @@ export const get_contacts = {
   },
   handle: async ({ limit = 20 }: { limit?: number }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, FirstName, LastName, Email, Phone, Title, Account.Name
-       FROM Contact ORDER BY CreatedDate DESC LIMIT ${limit}`
+      `SELECT Id, FirstName, LastName, Email, Phone, Title, Account.Name FROM Contact ORDER BY CreatedDate DESC LIMIT ${limit}`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

@@ -10,8 +10,7 @@ export const get_recent_activities = {
   },
   handle: async ({ limit = 20 }: { limit?: number }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, Subject, Status, Priority, ActivityDate
-       FROM Task ORDER BY CreatedDate DESC LIMIT ${limit}`
+      `SELECT Id, Subject, Status, Priority, ActivityDate FROM Task ORDER BY CreatedDate DESC LIMIT ${limit}`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

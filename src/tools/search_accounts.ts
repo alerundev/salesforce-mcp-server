@@ -10,8 +10,7 @@ export const search_accounts = {
   },
   handle: async ({ keyword }: { keyword: string }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, Name, Industry, AnnualRevenue, Phone, BillingCity
-       FROM Account WHERE Name LIKE '%${keyword}%' LIMIT 20`
+      `SELECT Id, Name, Industry, AnnualRevenue, Phone, BillingCity FROM Account WHERE Name LIKE '%${keyword}%' LIMIT 20`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

@@ -10,8 +10,7 @@ export const get_accounts = {
   },
   handle: async ({ limit = 20 }: { limit?: number }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, Name, Industry, AnnualRevenue, Phone, BillingCity, BillingCountry, NumberOfEmployees
-       FROM Account ORDER BY CreatedDate DESC LIMIT ${limit}`
+      `SELECT Id, Name, Industry, AnnualRevenue, Phone, BillingCity, BillingCountry, NumberOfEmployees FROM Account ORDER BY CreatedDate DESC LIMIT ${limit}`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

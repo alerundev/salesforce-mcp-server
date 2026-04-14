@@ -10,8 +10,7 @@ export const get_opportunities = {
   },
   handle: async ({ limit = 20 }: { limit?: number }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, Name, StageName, Amount, CloseDate, Account.Name, Probability
-       FROM Opportunity ORDER BY CloseDate ASC LIMIT ${limit}`
+      `SELECT Id, Name, StageName, Amount, CloseDate, Account.Name, Probability FROM Opportunity ORDER BY CloseDate ASC LIMIT ${limit}`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

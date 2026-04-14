@@ -7,8 +7,7 @@ export const get_opportunities_summary = {
   args: {},
   handle: async (): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT StageName, COUNT(Id) cnt, SUM(Amount) totalAmount
-       FROM Opportunity GROUP BY StageName`
+      `SELECT StageName, COUNT(Id) cnt, SUM(Amount) totalAmount FROM Opportunity GROUP BY StageName`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],

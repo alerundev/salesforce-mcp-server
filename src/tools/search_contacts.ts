@@ -10,8 +10,7 @@ export const search_contacts = {
   },
   handle: async ({ keyword }: { keyword: string }): Promise<CallToolResult> => {
     const records = await query(
-      `SELECT Id, FirstName, LastName, Email, Phone, Title, Account.Name
-       FROM Contact WHERE LastName LIKE '%${keyword}%' OR FirstName LIKE '%${keyword}%' LIMIT 20`
+      `SELECT Id, FirstName, LastName, Email, Phone, Title, Account.Name FROM Contact WHERE LastName LIKE '%${keyword}%' OR FirstName LIKE '%${keyword}%' LIMIT 20`
     );
     return {
       content: [{ type: 'text', text: JSON.stringify(records, null, 2) }],
