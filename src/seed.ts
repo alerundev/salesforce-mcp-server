@@ -10,7 +10,7 @@ async function seed() {
 
   // ── 1. Accounts ──────────────────────────────────────────────────────────
   console.log('📦 거래처(Account) 생성 중...');
-  const accounts = await (conn as any).sobject('Account').create([
+  const accounts = await conn.sobject('Account').create([
     { Name: '삼성전자', Industry: 'Electronics', AnnualRevenue: 200000000, BillingCity: '수원', BillingCountry: '대한민국', NumberOfEmployees: 50000, Phone: '031-200-1234' },
     { Name: 'LG화학', Industry: 'Chemicals', AnnualRevenue: 150000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 30000, Phone: '02-3777-1114' },
     { Name: '현대자동차', Industry: 'Automotive', AnnualRevenue: 300000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 70000, Phone: '02-3464-1114' },
@@ -19,12 +19,12 @@ async function seed() {
     { Name: '네이버', Industry: 'Technology', AnnualRevenue: 100000000, BillingCity: '성남', BillingCountry: '대한민국', NumberOfEmployees: 15000, Phone: '1588-3820' },
     { Name: '쿠팡', Industry: 'Retail', AnnualRevenue: 90000000, BillingCity: '서울', BillingCountry: '대한민국', NumberOfEmployees: 25000, Phone: '1577-7011' },
   ]);
-  const accountIds = (accounts as any[]).map((a: any) => a.id);
+  const accountIds = accounts.map((a) => a.id);
   console.log(`  ✅ ${accountIds.length}개 거래처 생성 완료`);
 
   // ── 2. Contacts ──────────────────────────────────────────────────────────
   console.log('👤 담당자(Contact) 생성 중...');
-  await (conn as any).sobject('Contact').create([
+  await conn.sobject('Contact').create([
     { FirstName: '지수', LastName: '김', Email: 'jisoo.kim@samsung.com', Phone: '031-200-1001', Title: 'IT 구매팀장', AccountId: accountIds[0] },
     { FirstName: '민준', LastName: '이', Email: 'minjun.lee@samsung.com', Phone: '031-200-1002', Title: 'CTO', AccountId: accountIds[0] },
     { FirstName: '서연', LastName: '박', Email: 'seoyeon.park@lgchem.com', Phone: '02-3777-2001', Title: '구매 담당자', AccountId: accountIds[1] },
@@ -37,7 +37,7 @@ async function seed() {
 
   // ── 3. Opportunities ─────────────────────────────────────────────────────
   console.log('💰 영업 기회(Opportunity) 생성 중...');
-  await (conn as any).sobject('Opportunity').create([
+  await conn.sobject('Opportunity').create([
     { Name: '삼성전자 AI플랫폼 도입', StageName: 'Proposal/Price Quote', Amount: 50000000, CloseDate: '2026-05-31', AccountId: accountIds[0], Probability: 60 },
     { Name: '삼성전자 파일럿 확장', StageName: 'Negotiation/Review', Amount: 30000000, CloseDate: '2026-04-30', AccountId: accountIds[0], Probability: 80 },
     { Name: 'LG화학 챗봇 솔루션', StageName: 'Closed Won', Amount: 25000000, CloseDate: '2026-03-15', AccountId: accountIds[1], Probability: 100 },
@@ -52,7 +52,7 @@ async function seed() {
 
   // ── 4. Leads ─────────────────────────────────────────────────────────────
   console.log('🎯 잠재 고객(Lead) 생성 중...');
-  await (conn as any).sobject('Lead').create([
+  await conn.sobject('Lead').create([
     { FirstName: '수지', LastName: '한', Company: '롯데정보통신', Email: 'suji.han@lotte.com', Status: 'Open', LeadSource: 'Web', Rating: 'Hot', Phone: '02-1234-5678' },
     { FirstName: '도현', LastName: '임', Company: '포스코ICT', Email: 'dohyun.lim@poscoict.com', Status: 'Working', LeadSource: 'Conference', Rating: 'Warm', Phone: '02-2345-6789' },
     { FirstName: '하은', LastName: '오', Company: 'GS리테일', Email: 'haeun.oh@gsretail.com', Status: 'Open', LeadSource: 'Partner Referral', Rating: 'Hot', Phone: '02-3456-7890' },
@@ -64,7 +64,7 @@ async function seed() {
 
   // ── 5. Tasks ─────────────────────────────────────────────────────────────
   console.log('📋 활동(Task) 생성 중...');
-  await (conn as any).sobject('Task').create([
+  await conn.sobject('Task').create([
     { Subject: '삼성전자 제안서 발송', Status: 'Completed', Priority: 'High', ActivityDate: '2026-04-10' },
     { Subject: '현대자동차 미팅 준비', Status: 'Not Started', Priority: 'High', ActivityDate: '2026-04-20' },
     { Subject: 'SK텔레콤 전화 상담', Status: 'In Progress', Priority: 'Normal', ActivityDate: '2026-04-15' },
@@ -76,7 +76,7 @@ async function seed() {
   console.log('\n🎉 샘플 데이터 시딩 완료!');
 }
 
-seed().catch((err) => {
-  console.error('❌ 시딩 실패:', (err as Error).message);
+seed().catch((err: Error) => {
+  console.error('❌ 시딩 실패:', err.message);
   process.exit(1);
 });

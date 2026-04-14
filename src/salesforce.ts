@@ -1,11 +1,11 @@
-import jsforce from 'jsforce';
+import { Connection } from 'jsforce';
 
-let conn: jsforce.Connection | null = null;
+let conn: Connection | null = null;
 
-export async function getConnection(): Promise<jsforce.Connection> {
+export async function getConnection(): Promise<Connection> {
   if (conn) return conn;
 
-  conn = new jsforce.Connection({
+  conn = new Connection({
     loginUrl: process.env['SF_LOGIN_URL'] || 'https://login.salesforce.com',
   });
 
@@ -21,5 +21,5 @@ export async function getConnection(): Promise<jsforce.Connection> {
 export async function query(soql: string): Promise<Record<string, unknown>[]> {
   const c = await getConnection();
   const result = await c.query(soql);
-  return result.records as Record<string, unknown>[];
+  return result.records;
 }
