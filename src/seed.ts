@@ -48,7 +48,7 @@ async function createRecord(token: string, base: string, sobject: string, record
       hostname: new URL(base).hostname,
       path: `/services/data/v59.0/sobjects/${sobject}`,
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'Sforce-Duplicate-Rule-Header': 'allowSave=true' },
     }, (res) => {
       let raw = '';
       res.on('data', chunk => raw += chunk);
@@ -71,17 +71,17 @@ async function seed() {
   console.log('\n📦 거래처(Account) 생성 중...');
   const accountData = [
     // 한국
-    { Name: 'LG생활건강', Industry: 'Consumer Goods', AnnualRevenue: 800000000, BillingCity: '서울', BillingCountry: 'South Korea', NumberOfEmployees: 12000, Phone: '02-6924-6114', Description: '화장품 용기 및 생활용품 제조사' },
-    { Name: '아모레퍼시픽', Industry: 'Consumer Goods', AnnualRevenue: 600000000, BillingCity: '서울', BillingCountry: 'South Korea', NumberOfEmployees: 8000, Phone: '02-709-5114', Description: '화장품 및 뷰티 제품 포장재 수요' },
-    { Name: '삼성전자', Industry: 'Electronics', AnnualRevenue: 2000000000, BillingCity: '수원', BillingCountry: 'South Korea', NumberOfEmployees: 50000, Phone: '031-200-1114', Description: '가전제품 및 전자부품 소재 수요' },
-    { Name: '현대엔지니어링플라스틱', Industry: 'Manufacturing', AnnualRevenue: 200000000, BillingCity: '울산', BillingCountry: 'South Korea', NumberOfEmployees: 3000, Phone: '052-280-1114', Description: '자동차 부품 및 산업용 소재' },
+    { Name: 'LG생활건강', Industry: 'Consumer Goods', AnnualRevenue: 800000000, BillingCity: '서울', BillingCountry: 'Korea, Republic of', NumberOfEmployees: 12000, Phone: '02-6924-6114', Description: '화장품 용기 및 생활용품 제조사' },
+    { Name: '아모레퍼시픽', Industry: 'Consumer Goods', AnnualRevenue: 600000000, BillingCity: '서울', BillingCountry: 'Korea, Republic of', NumberOfEmployees: 8000, Phone: '02-709-5114', Description: '화장품 및 뷰티 제품 포장재 수요' },
+    { Name: '삼성전자', Industry: 'Electronics', AnnualRevenue: 2000000000, BillingCity: '수원', BillingCountry: 'Korea, Republic of', NumberOfEmployees: 50000, Phone: '031-200-1114', Description: '가전제품 및 전자부품 소재 수요' },
+    { Name: '현대엔지니어링플라스틱', Industry: 'Manufacturing', AnnualRevenue: 200000000, BillingCity: '울산', BillingCountry: 'Korea, Republic of', NumberOfEmployees: 3000, Phone: '052-280-1114', Description: '자동차 부품 및 산업용 소재' },
     // 미국
-    { Name: 'Berry Global Inc.', Industry: 'Manufacturing', AnnualRevenue: 1500000000, BillingCity: 'Evansville', BillingCountry: 'USA', NumberOfEmployees: 48000, Phone: '+1-812-424-2904', Description: '플라스틱 포장재 전문 제조사' },
-    { Name: 'Silgan Plastics', Industry: 'Manufacturing', AnnualRevenue: 900000000, BillingCity: 'Woodland Hills', BillingCountry: 'USA', NumberOfEmployees: 5000, Phone: '+1-818-704-8000', Description: '식품음료 용기 포장재 제조' },
-    { Name: 'Printpack Inc.', Industry: 'Manufacturing', AnnualRevenue: 700000000, BillingCity: 'Atlanta', BillingCountry: 'USA', NumberOfEmployees: 4500, Phone: '+1-404-460-7000', Description: '유연포장 및 경질포장 전문' },
+    { Name: 'Berry Global Inc.', Industry: 'Manufacturing', AnnualRevenue: 1500000000, BillingCity: 'Evansville', BillingCountry: 'United States', NumberOfEmployees: 48000, Phone: '+1-812-424-2904', Description: '플라스틱 포장재 전문 제조사' },
+    { Name: 'Silgan Plastics', Industry: 'Manufacturing', AnnualRevenue: 900000000, BillingCity: 'Woodland Hills', BillingCountry: 'United States', NumberOfEmployees: 5000, Phone: '+1-818-704-8000', Description: '식품음료 용기 포장재 제조' },
+    { Name: 'Printpack Inc.', Industry: 'Manufacturing', AnnualRevenue: 700000000, BillingCity: 'Atlanta', BillingCountry: 'United States', NumberOfEmployees: 4500, Phone: '+1-404-460-7000', Description: '유연포장 및 경질포장 전문' },
     // 유럽
     { Name: 'Greiner Packaging', Industry: 'Manufacturing', AnnualRevenue: 500000000, BillingCity: 'Kremsmünster', BillingCountry: 'Austria', NumberOfEmployees: 4200, Phone: '+43-7583-7271', Description: '유럽 식품 포장재 선도 기업' },
-    { Name: 'RPC Group', Industry: 'Manufacturing', AnnualRevenue: 800000000, BillingCity: 'Rushden', BillingCountry: 'UK', NumberOfEmployees: 25000, Phone: '+44-1933-410410', Description: '유럽 최대 플라스틱 포장재 그룹' },
+    { Name: 'RPC Group', Industry: 'Manufacturing', AnnualRevenue: 800000000, BillingCity: 'Rushden', BillingCountry: 'United Kingdom', NumberOfEmployees: 25000, Phone: '+44-1933-410410', Description: '유럽 최대 플라스틱 포장재 그룹' },
     { Name: 'Alpla Group', Industry: 'Manufacturing', AnnualRevenue: 450000000, BillingCity: 'Hard', BillingCountry: 'Austria', NumberOfEmployees: 21000, Phone: '+43-5574-602-0', Description: '글로벌 플라스틱 포장재 제조' },
     // 일본
     { Name: 'Toyo Seikan Group', Industry: 'Manufacturing', AnnualRevenue: 1200000000, BillingCity: 'Tokyo', BillingCountry: 'Japan', NumberOfEmployees: 15000, Phone: '+81-3-3508-2111', Description: '일본 최대 캔 및 용기 제조사' },
